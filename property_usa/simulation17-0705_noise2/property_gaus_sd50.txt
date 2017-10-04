@@ -1,0 +1,11 @@
+256,256,0,59,60,3,
+\\Rvector\\3Å~3sobel_under
+..\\bmp\\sin_noise\\sin_0.0234375_2-2_sd50.bmp
+..\\filter\\3Å~3gaus\\3Å~3gaus.txt
+..\\filter\\3Å~3gaus\\3Å~3gaus.txt
+..\\filter\\3Å~3gaus\\3Å~3gaus.txt
+..\\filter\\3Å~3gaus\\3Å~3gaus.txt
+..\\filter\\3Å~3gaus\\3Å~3gaus.txt
+..\\filter\\3Å~3gaus\\3Å~3gaus.txt
+..\\filter\\3Å~3gaus\\3Å~3gaus.txt
+..\\filter\\3Å~3gaus\\3Å~3gaus.txt

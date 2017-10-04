@@ -1,0 +1,11 @@
+256,256,0,59,60,5,
+\\Rvector\\5~5sobel_under
+..\\bmp\\circle\\Î‚ß1_11.4-21.3_sd40.bmp
+..\\filter\\gaus\\5~5gaus.txt
+..\\filter\\gaus\\5~5gaus.txt
+..\\filter\\gaus\\5~5gaus.txt
+..\\filter\\gaus\\5~5gaus.txt
+..\\filter\\gaus\\5~5gaus.txt
+..\\filter\\gaus\\5~5gaus.txt
+..\\filter\\gaus\\5~5gaus.txt
+..\\filter\\gaus\\5~5gaus.txt

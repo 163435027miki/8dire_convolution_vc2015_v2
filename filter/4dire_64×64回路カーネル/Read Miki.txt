@@ -1,0 +1,39 @@
+simulation16-1201参照
+倍率は
+RmRg3kRs0.5kRc100kCs10pのV0の最大値を基準にして，
+
+RmRg10kRs0.5kRc100kCs10p	:3.135325231倍
+RmRg1000kRs0.5kRc100kCs10p	:301.8480626倍
+
+V90のみを作成した
+
+また，
+
+V(0):RmRg1000kRs0.5kRc100kCs10p
+V(45):RmRg10kRs0.5kRc100kCs10p
+V(90):RmRg3kRs0.5kRc100kCs10p
+
+のV90となっている．それ以外はフェイク
+
+
+
+
+V90_FFT基準
+simulation16-1206参照
+
+RmRg3kRs0.5kRc100kCs10pのFFTのピークを基準にして，
+
+
+RmRg10kRs0.5kRc100kCs10p	:18.4倍
+RmRg1000kRs0.5kRc100kCs10p	:1.84倍
+
+
+90のみを作成した
+
+また，
+
+V(0):RmRg1000kRs0.5kRc100kCs10p
+V(45):RmRg10kRs0.5kRc100kCs10p
+V(90):RmRg3kRs0.5kRc100kCs10p
+
+のV90となっている．それ以外はフェイク

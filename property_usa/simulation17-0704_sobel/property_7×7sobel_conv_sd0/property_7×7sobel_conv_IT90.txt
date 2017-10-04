@@ -1,0 +1,11 @@
+120,120,0,59,60,7,
+\\Rvector\\7Å~7sobel_under
+..\\bmp\\255-0\\255-0-IT90.bmp
+..\\filter\\7Å~7sobel\\sobel0.txt
+..\\filter\\7Å~7sobel\\sobel45.txt
+..\\filter\\7Å~7sobel\\sobel90.txt
+..\\filter\\7Å~7sobel\\sobel135.txt
+..\\filter\\7Å~7sobel\\sobel180.txt
+..\\filter\\7Å~7sobel\\sobel225.txt
+..\\filter\\7Å~7sobel\\sobel270.txt
+..\\filter\\7Å~7sobel\\sobel315.txt

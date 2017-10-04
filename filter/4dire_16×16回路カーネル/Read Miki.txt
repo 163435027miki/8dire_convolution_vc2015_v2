@@ -1,0 +1,7 @@
+simulation16-1201ŽQÆ
+”{—¦‚Í
+RmRg3kRs0.5kRc100kCs10p‚ÌV0‚ÌÅ‘å’l‚ðŠî€‚É‚µ‚ÄC
+
+RmRg10kRs0.5kRc100kCs10p	:3.1”{
+RmRg100kRs0.5kRc100kCs10p	:29.78”{
+RmRg1000kRs0.5kRc100kCs10p	:296”{

@@ -1,0 +1,11 @@
+128,128,0,59,60,31,
+\\Rvector\\8dire_100k
+..\\bmp\\Togire\\90-7p-9T.bmp
+..\\filter\\kernel\\8dire_RmRg100kRs0.5kRc100kCs10p\\V(0).txt
+..\\filter\\kernel\\8dire_RmRg100kRs0.5kRc100kCs10p\\V(45).txt
+..\\filter\\kernel\\8dire_RmRg100kRs0.5kRc100kCs10p\\V(90).txt
+..\\filter\\kernel\\8dire_RmRg100kRs0.5kRc100kCs10p\\V(135).txt
+..\\filter\\kernel\\8dire_RmRg100kRs0.5kRc100kCs10p\\V(180).txt
+..\\filter\\kernel\\8dire_RmRg100kRs0.5kRc100kCs10p\\V(225).txt
+..\\filter\\kernel\\8dire_RmRg100kRs0.5kRc100kCs10p\\V(270).txt
+..\\filter\\kernel\\8dire_RmRg100kRs0.5kRc100kCs10p\\V(315).txt

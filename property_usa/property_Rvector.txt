@@ -1,0 +1,11 @@
+119,119,1,59,60,3,
+..\\result\\Rvector\\sobel_under2
+..\\bmp\\real3\\real3_sd50.bmp
+..\\フィルタ\\sobel\\sobel0.txt
+..\\フィルタ\\sobel\\sobel45.txt
+..\\フィルタ\\sobel\\sobel90.txt
+..\\フィルタ\\sobel\\sobel135.txt
+..\\フィルタ\\sobel\\sobel180.txt
+..\\フィルタ\\sobel\\sobel225.txt
+..\\フィルタ\\sobel\\sobel270.txt
+..\\フィルタ\\sobel\\sobel315.txt

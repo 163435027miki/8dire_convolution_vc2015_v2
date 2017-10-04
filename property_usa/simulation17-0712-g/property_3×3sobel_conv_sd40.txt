@@ -1,0 +1,11 @@
+256,256,0,59,60,3,
+\\Rvector\\3~3sobel_under
+..\\bmp\\circle\\Î‚ß1_11.4-21.3_sd40.bmp
+..\\filter\\gaus\\3~3gaus.txt
+..\\filter\\gaus\\3~3gaus.txt
+..\\filter\\gaus\\3~3gaus.txt
+..\\filter\\gaus\\3~3gaus.txt
+..\\filter\\gaus\\3~3gaus.txt
+..\\filter\\gaus\\3~3gaus.txt
+..\\filter\\gaus\\3~3gaus.txt
+..\\filter\\gaus\\3~3gaus.txt

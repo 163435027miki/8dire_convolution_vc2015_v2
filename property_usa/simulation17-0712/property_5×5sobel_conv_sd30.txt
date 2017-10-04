@@ -1,0 +1,11 @@
+256,256,0,59,60,5,
+\\Rvector\\5Å~5sobel_under
+..\\bmp\\circle\\gaus\\éŒÇﬂ1_11.4-21.3_5Å~5gaus_sd30.bmp
+..\\filter\\5Å~5sobelN\\sobel0.txt
+..\\filter\\5Å~5sobelN\\sobel45.txt
+..\\filter\\5Å~5sobelN\\sobel90.txt
+..\\filter\\5Å~5sobelN\\sobel135.txt
+..\\filter\\5Å~5sobelN\\sobel180.txt
+..\\filter\\5Å~5sobelN\\sobel225.txt
+..\\filter\\5Å~5sobelN\\sobel270.txt
+..\\filter\\5Å~5sobelN\\sobel315.txt

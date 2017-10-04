@@ -1,0 +1,11 @@
+256,256,0,59,60,31,
+\\Rvector\\8dire_3k
+..\\bmp\\circle\\ŽÎ‚ß3_54.2-8.88_sd30.bmp
+..\\filter\\simulation17-0203\\8dire_RmRg3kRs0.5kRc100kCs10p\\V(0).txt
+..\\filter\\simulation17-0203\\8dire_RmRg3kRs0.5kRc100kCs10p\\V(45).txt
+..\\filter\\simulation17-0203\\8dire_RmRg3kRs0.5kRc100kCs10p\\V(90).txt
+..\\filter\\simulation17-0203\\8dire_RmRg3kRs0.5kRc100kCs10p\\V(135).txt
+..\\filter\\simulation17-0203\\8dire_RmRg3kRs0.5kRc100kCs10p\\V(180).txt
+..\\filter\\simulation17-0203\\8dire_RmRg3kRs0.5kRc100kCs10p\\V(225).txt
+..\\filter\\simulation17-0203\\8dire_RmRg3kRs0.5kRc100kCs10p\\V(270).txt
+..\\filter\\simulation17-0203\\8dire_RmRg3kRs0.5kRc100kCs10p\\V(315).txt

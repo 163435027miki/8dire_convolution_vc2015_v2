@@ -1,0 +1,13 @@
+基準ベクトルを保存するディレクトリ
+
+フォルダ内には
+Rvector_magni.csv	//基準ベクトルの倍率の決定
+Rvector0.csv		//0°の基準ベクトル作成用画像を入力したときの8方向一次微分回路の応答
+Rvector45.csv
+Rvector90.csv
+Rvector135.csv
+Rvector180.csv
+Rvector225.csv
+Rvector270.csv
+Rvector315.csv
+が必要である．
