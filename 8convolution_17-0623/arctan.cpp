@@ -6,6 +6,7 @@
 #include<time.h>//時間を用いる
 #include <direct.h>//フォルダを作成す
 #include<stdio.h>
+#include<vector>
 
 int atan_eco_mode_flag = 1;
 
@@ -16,6 +17,8 @@ int atan_eco_mode_flag = 1;
 #define PI 3.14159265
 
 using namespace std;
+
+int otsu(char date_directory4[], int &image_x, int &image_y,std::vector<std::vector<double>> &threshold_edge_st_f);
 
 int arctan(char date_directory[], int &image_x, int &image_y,int paramerter[],int paramerter_count,int sd,char date[]){
 
@@ -29,6 +32,7 @@ int arctan(char date_directory[], int &image_x, int &image_y,int paramerter[],in
 	char *math_atan5_s = "\\threshold_atan_high.csv";
 	char *math_atan8_s = "\\threshold2.csv";
 	char *math_atan9_s = "\\threshold_atan_low.csv";
+	char *math_atan10_s = "\\threshold4.csv";
 
 	char Input_Filename_atan1[255];						//入力ファイル名・入力元の設定
 	char Input_Filename_atan3[255];
@@ -37,13 +41,14 @@ int arctan(char date_directory[], int &image_x, int &image_y,int paramerter[],in
 	char math_atan5[128];							//threshold_atan_high
 	char math_atan8[128];							//2つの閾値を一つに
 	char math_atan9[128];							//threshold(use_Rvector_flagの応答電圧Vの大きさ）
+	char math_atan10[128];							//threshold(エッジ強度）
 
 	double threshold_atan_high=0;
 	double threshold_atan_low=0;
 	double threshold_atan_low_abs;
 	double threshold_atan_high_abs;
 
-	FILE *fp_arctan, *fp_threshold_atan_low, *fp_threshold_atan_high, *fp_atan_threshold2;
+	FILE *fp_arctan, *fp_threshold_atan_low, *fp_threshold_atan_high, *fp_atan_threshold2, *fp_atan_threshold4;
 
 	printf("****************************************\n");
 	printf("start： atan\n");
@@ -56,6 +61,7 @@ int arctan(char date_directory[], int &image_x, int &image_y,int paramerter[],in
 	double **V90 = matrix(0, image_x - 1, 0, image_y - 1);
 	double **threshold_atan_high_flag = matrix(0, image_x - 1, 0, image_y - 1);
 	double **threshold_atan_low_flag = matrix(0, image_x - 1, 0, image_y - 1);
+	double **threshold_edge_st = matrix(0, image_x - 1, 0, image_y - 1);
 	double **Angle = matrix(0, image_x - 1, 0, image_y - 1);
 	
 	for (i = 0; i < image_y; i++) {
@@ -64,6 +70,7 @@ int arctan(char date_directory[], int &image_x, int &image_y,int paramerter[],in
 			V90[j][i] = 0;
 			threshold_atan_high_flag[j][i] = 0;
 			threshold_atan_low_flag[j][i] = 0;
+			threshold_edge_st[j][i] = 0;
 			Angle[j][i] = 0;
 		}
 	}
@@ -102,6 +109,7 @@ int arctan(char date_directory[], int &image_x, int &image_y,int paramerter[],in
 	sprintf(math_atan5, "%s%s", date_directory4, math_atan5_s);
 	sprintf(math_atan8, "%s%s", date_directory4, math_atan8_s);
 	sprintf(math_atan9, "%s%s", date_directory4, math_atan9_s);
+	sprintf(math_atan10, "%s%s", date_directory4, math_atan10_s);
 
 ////////////////////////////ファイルの読み込み//////////////////////////////////////////////////////////////////////////////
 
@@ -117,6 +125,7 @@ int arctan(char date_directory[], int &image_x, int &image_y,int paramerter[],in
 /////////////////////////出力ファイルを開く///////////////////////////////////////////////////////////////////////////////////
 	if ((fp_arctan = fopen(math_atan1, "w")) == NULL) {printf("出力ファイル : arctan.csvが開けません\n出力ファイルディレクトリ：%s\n",math_atan1); exit(1); }
 	if ((fp_atan_threshold2 = fopen(math_atan8, "w")) == NULL) {printf("出力ファイル : threshold2.csvが開けません\n出力ファイルディレクトリ：%s\n",math_atan8); exit(1); }
+	if ((fp_atan_threshold4 = fopen(math_atan10, "w")) == NULL) { printf("出力ファイル : threshold4.csvが開けません\n出力ファイルディレクトリ：%s\n", math_atan10); exit(1); }
 
 	if (atan_eco_mode_flag != 1) {
 		if ((fp_threshold_atan_high = fopen(math_atan5, "w")) == NULL) { printf("出力ファイル : threshold_atan_high.csvが開けません\n出力ファイルディレクトリ：%s\n", math_atan5); exit(1); }
@@ -145,6 +154,8 @@ int arctan(char date_directory[], int &image_x, int &image_y,int paramerter[],in
 			getline(stream_V_90, token_V_90, ',');
 			double tmp_V_90 = stof(token_V_90);
 			V90[count_small][count_large] = tmp_V_90;
+
+			
 
 			++count_small;
 		}
@@ -201,12 +212,18 @@ int arctan(char date_directory[], int &image_x, int &image_y,int paramerter[],in
 			}
 
 			if (Angle[j][i] < 0)Angle[j][i] = Angle[j][i] + 360;	//マイナスの角度が存在しないようにするため
+
+			//エッジ強度を用いた閾値の計算
+			threshold_edge_st[j][i] = sqrt(pow(V0[j][i], 2) + pow(V90[j][i], 2));
 /////////////////////////計算終わり/////////////////////////////////////////////////////////////////////////////////////////////
 
 //////////////ファイルへの書き込み/////////////////////////////////////////////
 			//角度
 			fprintf(fp_arctan, "%lf,", Angle[j][i]);
 			if (j == image_x - 1) { fprintf(fp_arctan, "\n"); }
+
+			fprintf(fp_atan_threshold4, "%lf,", threshold_edge_st[j][i]);
+			if (j == image_x - 1) { fprintf(fp_atan_threshold4, "\n"); }
 
 			if (atan_eco_mode_flag != 1) {
 				//上の閾値
@@ -251,10 +268,27 @@ int arctan(char date_directory[], int &image_x, int &image_y,int paramerter[],in
 	//ファイルを閉じる
 	fclose(fp_arctan);
 	fclose(fp_atan_threshold2);
+	fclose(fp_atan_threshold4);
 	if (atan_eco_mode_flag != 1) {
 		fclose(fp_threshold_atan_high);
 		fclose(fp_threshold_atan_low);
 	}
+
+	//出力する値
+	std::vector<std::vector<double>>threshold_edge_st_f;
+	threshold_edge_st_f.resize(image_x);
+	for (int i = 0; i<image_x; ++i) {
+		threshold_edge_st_f[i].resize(image_y);
+	}
+
+	for (i = 0; i < image_y; ++i) {
+		for (j = 0; j < image_x; ++j) {
+			threshold_edge_st_f[j][i] = threshold_edge_st[j][i];
+		}
+	}
+	
+
+	double threshold_b=otsu(date_directory4,image_x,image_y, threshold_edge_st_f);
 			
 ////////////////////////logファイルの作成//////////////////////////////////////////////////////////////////////////
 	FILE *fp_date;
@@ -265,16 +299,18 @@ int arctan(char date_directory[], int &image_x, int &image_y,int paramerter[],in
 	fprintf(fp_date,"Time       : %s\n",date);						//時間
 	fprintf(fp_date,"使用データ : %s\n",inputdate_directory_atan);		//使用した畳み込み済みデータ
 	fprintf(fp_date,"保存先     : %s\n",date_directory);			//保存先
+	fprintf(fp_date, "threshold_b     : %f\n", threshold_b);			//保存先
 	fclose(fp_date);
 
 	printf("使用データ : %s\n",inputdate_directory_atan);				//使用した畳み込み済みデータ
 	printf("logファイル %s を保存しました\n",filename_log);
-
+	
 	//メモリの開放
 	free_matrix(V0, 0, image_x - 1, 0, image_y - 1);
 	free_matrix(V90, 0, image_x - 1, 0, image_y - 1);
 	free_matrix(threshold_atan_high_flag, 0, image_x - 1, 0, image_y - 1);
 	free_matrix(threshold_atan_low_flag, 0, image_x - 1, 0, image_y - 1);
+	free_matrix(threshold_edge_st, 0, image_x - 1, 0, image_y - 1);
 	free_matrix(Angle, 0, image_x - 1, 0, image_y - 1);
 	
 	return 0;

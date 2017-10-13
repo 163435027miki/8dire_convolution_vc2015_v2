@@ -1,0 +1,10 @@
+..\\Rvector\\3Å~3sobel_under
+..\\bmp\\half\\LINEAR\\real3_sd40_LINEAR.bmp
+..\\filter\\3Å~3sobelN\\sobel0.txt
+..\\filter\\3Å~3sobelN\\sobel45.txt
+..\\filter\\3Å~3sobelN\\sobel90.txt
+..\\filter\\3Å~3sobelN\\sobel135.txt
+..\\filter\\3Å~3sobelN\\sobel180.txt
+..\\filter\\3Å~3sobelN\\sobel225.txt
+..\\filter\\3Å~3sobelN\\sobel270.txt
+..\\filter\\3Å~3sobelN\\sobel315.txt

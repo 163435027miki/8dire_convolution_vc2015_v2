@@ -1152,7 +1152,7 @@ int local_connectivity(int image_x, int image_y, double *local_flag[],double *th
 					threshold_LC_flag[j][i] = local_flag[j][i];
 				}
 			}
-
+			
 /*
 			//直線の長さ方向に繋がることを考える
 			//エッジ方向とに隣接する方向がθ±45°以内に存在しない場合，flagを0→threshold3=0とする
@@ -1235,6 +1235,7 @@ int local_connectivity(int image_x, int image_y, double *local_flag[],double *th
 		}
 	}
 
+	threshold_LC_number[j][i] = threshold_LC_flag[j][i];
 	free_matrix(threshold_LC_flag, 0, image_x - 1, 0, image_y - 1);
 	return **threshold_LC_number;
 }

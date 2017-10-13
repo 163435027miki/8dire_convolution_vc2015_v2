@@ -1,0 +1,10 @@
+..\\Rvector\\7Å~7sobel_under
+..\\bmp\\Aerial\\one_third\\Aerial_sd10_CUBIC.bmp
+..\\filter\\7Å~7sobelN\\sobel0.txt
+..\\filter\\7Å~7sobelN\\sobel45.txt
+..\\filter\\7Å~7sobelN\\sobel90.txt
+..\\filter\\7Å~7sobelN\\sobel135.txt
+..\\filter\\7Å~7sobelN\\sobel180.txt
+..\\filter\\7Å~7sobelN\\sobel225.txt
+..\\filter\\7Å~7sobelN\\sobel270.txt
+..\\filter\\7Å~7sobelN\\sobel315.txt
