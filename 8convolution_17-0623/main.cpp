@@ -17,9 +17,11 @@ char image_nameP2[256];
 int sd;
 
 
-//標準偏差の調整箇所
-int sd_max = 50;
-int paramerter_count_max = 3;
+
+//kernelのパラメータとsobelのサイズを記す
+int paramerter_kernel[4] = { 1,3,10,100 };
+int paramerter_sobel[4] = { 0,3,5,7 };
+
 
 
 int timeset(char date[]);
@@ -39,9 +41,34 @@ int main(int argc, char** argv){
 	int pixel[10]={0,1,3,5,7,9,13,17};
 	int Togire[10] = { 0,1,3,5,7,9,13,17 };
 	
+	int paramerter[4];					//paramerter[0]=1でsobelフィルタ,paramerter[0]=2でgaus×sobelフィルタ
 
-	int paramerter[4] = { 2,3,5,7 };		//paramerter[0]=1でsobelフィルタ,paramerter[0]=2でgaus×sobelフィルタ
+	//標準偏差の調整箇所
+	int sd_max = 50;
+	int paramerter_count_max = 3;
+	//int cossim_atan_switch = 0;			//cossim_atan_switch=0でcossim,cossim_atan_switch=1でarctan
+	paramerter[0] = 0;					//paramerter[0]=1でsobelフィルタ,paramerter[0]=2でgaus×sobelフィルタ
+	//int Edge_derectory_number = 2;		//エッジ強度の計算に用いる成分の数．2（0,90)または8(0~315)
+
 	int paramerter_count=0;
+
+	//用いるパラメータを代入
+	switch (paramerter[0]) {
+	case 0:
+		for (int i = 1; i < 4; ++i) {
+			paramerter[i] = paramerter_kernel[i];
+		}
+		break;
+	case 1:
+	case 2:
+		for (int i = 1; i < 4; ++i) {
+			paramerter[i] = paramerter_sobel[i];
+		}
+		break;
+	default:
+		printf("paramerter[0]の値がおかしい\nparamerter[0]=%d\n", paramerter[0]);
+		return 0;
+	}
 
 	//for (int z2 = 1; z2 <= 7; ++z2) {		//pixel
 	//	for (int z = 1; z <= 7; ++z) {		//Togire
@@ -56,14 +83,15 @@ int main(int argc, char** argv){
 				//for (sd = 0; sd <= 0; sd = sd + 10) {
 
 					if (paramerter[0] == 1 || paramerter[0] == 2) {
-						sprintf(image_nameP,"..\\property_usa\\simulation17-1012-2\\property_sobel\\property_%d×%dsobel_conv_",paramerter[paramerter_count],paramerter[paramerter_count]);
+						sprintf(image_nameP,"..\\property_usa\\simulation17-1031\\property_sobel\\property_%d×%dsobel_conv_",paramerter[paramerter_count],paramerter[paramerter_count]);
 					//	sprintf(image_nameP, "..\\property_usa\\simulation17-0725\\sobel\\15-%dp-%dT_sobel", pixel[z2], Togire[z], paramerter[paramerter_count]);
-						sprintf(image_nameP2, "%ssd%d.txt", image_nameP, sd);
+					//	sprintf(image_nameP2, "%ssd%d.txt", image_nameP, sd);
+						sprintf(image_nameP2, "%s%d.txt", image_nameP, sd);
 						//sprintf(image_nameP2, "%s\\property_%d×%dsobel_conv_sd%d.txt", image_nameP, paramerter[paramerter_count], paramerter[paramerter_count], sd);
 					}
 					else {
 						//sprintf(image_nameP, "..\\property_usa\\simulation17-0821\\kernel\\15-%dp-%dT\\property_%dk_conv_", pixel[z2], Togire[z], paramerter[paramerter_count]);
-						sprintf(image_nameP,"..\\property_usa\\simulation17-1012-2\\property_kernel\\property_%dk_conv_", paramerter[paramerter_count]);
+						sprintf(image_nameP,"..\\property_usa\\simulation17-1031\\property_kernel\\property_%dk_conv_", paramerter[paramerter_count]);
 						sprintf(image_nameP2, "%ssd%d.txt", image_nameP, sd);
 						//sprintf(image_nameP, "..\\property_usa\\simulation17-0824-2\\property_B135");
 						//sprintf(image_nameP2, "%s.txt", image_nameP);
@@ -82,8 +110,8 @@ int main(int argc, char** argv){
 
 
 					//単スレッド処理
-				//	cossim(date_directory,image_x,image_y,paramerter,paramerter_count,sd,date);
-					arctan(date_directory,image_x,image_y,paramerter,paramerter_count,sd,date);
+					cossim(date_directory,image_x,image_y,paramerter,paramerter_count,sd,date);
+				//	arctan(date_directory,image_x,image_y,paramerter,paramerter_count,sd,date);
 					//Bazen_kernel(date_directory,image_x,image_y,paramerter,paramerter_count,sd,date);
 
 				//	Bazen(image_nameP2,image_x,image_y,paramerter,paramerter_count,sd,date,date_directory);

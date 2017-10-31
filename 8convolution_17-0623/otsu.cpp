@@ -150,14 +150,14 @@ int discriminantAnalysis(char date_directory4[], int &image_x, int &image_y, std
    printf("hist_max=%d\n",hist_max);
 
    float histf[256];
-   for (int i = 0; i < 256; ++i){
+   for (int i = 1; i < 256; ++i){
 	   histf[i]=hist[i]/(float)hist_max;
 	   //printf("histf=%f",histf[i]);
    }
 
-   Mat hist_image= Mat(Size(276,320),CV_8UC3,Scalar(255,255,255));
+   Mat hist_image= Mat(Size(276,140),CV_8UC3,Scalar(255,255,255));
 	rectangle(hist_image,Point(10,20),Point(265,100),Scalar(220,220,220),-1);
-	 for(int i=0;i<256;i++){
+	 for(int i=1;i<256;i++){
 	 line(hist_image,Point(10+i,100),Point(10+i,100-(float)(histf[i])*80),Scalar(0,0,255),1,8,0);
 	}
 	//namedWindow("ƒqƒXƒgƒOƒ‰ƒ€");
@@ -214,7 +214,7 @@ int discriminantAnalysis(char date_directory4[], int &image_x, int &image_y, std
   }
   
   
-  t2 = (k - 1)*t;
+  t2 = k*(t-1);
 
   free_matrix(data, 0, DATA_NUM - 1, 0, 1);
 //  free_matrix(tmp, 0, DATA_NUM - 1, 0, 1);

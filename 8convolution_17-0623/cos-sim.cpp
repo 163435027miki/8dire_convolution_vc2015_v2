@@ -8,6 +8,7 @@
 #include <direct.h>//フォルダを作成す
 #include<stdio.h>
 #include <windows.h>
+#include<vector>
 
 int cos_eco_mode_flag = 0;
 
@@ -130,6 +131,7 @@ int i,j;
 	void Rvector_read();
 	void Read_output();
 	int local_connectivity(int image_x,int image_y,double *local_flag[],double *threshold_LC_number[]);
+	int otsu(char date_directory4[], int &image_x, int &image_y, std::vector<std::vector<double>> &threshold_edge_st_f);
 
 int cossim(char date_directory[],int &image_x,int &image_y,int paramerter[],int paramerter_count,int sd,char date[]){
 	printf("****************************************\n");
@@ -711,6 +713,9 @@ int cossim(char date_directory[],int &image_x,int &image_y,int paramerter[],int 
 
 			Cos_similarity[j][i] = innerp[j][i] / (Rvector_sqrt[use_Rvector_number] * V_sqrt[j][i]);
 
+			//threshold3[j][i]= sqrt(pow(V0[j][i], 2) + pow(V45[j][i], 2) + pow(V90[j][i], 2) + pow(V135[j][i], 2) + pow(V180[j][i], 2) + pow(V225[j][i], 2) + pow(V270[j][i], 2) + pow(V315[j][i], 2));
+			threshold3[j][i] = sqrt(pow(V0[j][i], 2)  + pow(V90[j][i], 2));
+
 			//基準をずらす
 			if(use_Rvector_number<7){Angle[j][i] = acos(Cos_similarity[j][i])*180/PI+((use_Rvector_number-1)*45);}
 			if(use_Rvector_number>6){Angle[j][i] = acos(Cos_similarity[j][i])*180/PI+((use_Rvector_number-9)*45);}
@@ -753,14 +758,14 @@ int cossim(char date_directory[],int &image_x,int &image_y,int paramerter[],int 
 			}
 		}
 
-/////////////////////////////局所連結性のチェック///////////////////////////////////////////////////////
+/////////////////////////////局所連結性のチェック(工事の結果動かなくなった）///////////////////////////////////////////////////////
 		double **threshold_LC_number = matrix(0, image_x - 1, 0, image_y - 1);
 		for (i = 0; i < image_y; i++) {
 			for (j = 0; j < image_x; j++) {
 				threshold_LC_number[j][i] = 0;
 			}
 		}
-		
+	/*	
 		local_connectivity(image_x, image_y, threshold_local_flag, threshold_LC_number);
 		
 		for (i = 0; i < image_y; ++i) {
@@ -783,7 +788,13 @@ int cossim(char date_directory[],int &image_x,int &image_y,int paramerter[],int 
 				if (j == image_x - 1) { fprintf(fp_threshold3, "\n"); }
 			}
 		}
-		
+		*/
+		for (i = 0; i < image_y; ++i) {
+			for (j = 0; j < image_x; ++j) {
+				fprintf(fp_threshold3, "%lf,", threshold3[j][i]);
+				if (j == image_x - 1) { fprintf(fp_threshold3, "\n"); }
+			}
+		}
 		
 ///////////////////////////書き込み終わり/////////////////////////////////////////////////////////			
 
@@ -800,6 +811,24 @@ int cossim(char date_directory[],int &image_x,int &image_y,int paramerter[],int 
 	fclose(fp_Angle);
 	fclose(fp_threshold2);
 	fclose(fp_threshold3);
+
+//////////////////判別分析法をやってみる/////////////////////////////////////////////////
+
+//出力する値
+	std::vector<std::vector<double>>threshold_edge_st_f;
+	threshold_edge_st_f.resize(image_x);
+	for (int i = 0; i<image_x; ++i) {
+		threshold_edge_st_f[i].resize(image_y);
+	}
+
+	for (i = 0; i < image_y; ++i) {
+		for (j = 0; j < image_x; ++j) {
+			threshold_edge_st_f[j][i] = threshold3[j][i];
+		}
+	}
+
+	//判別分析法
+	double threshold_b = otsu(inputdate_directory, image_x, image_y, threshold_edge_st_f);
 
 ////////////////////////logファイルの作成//////////////////////////////////////////////////////////////////////////
 	FILE *fp_date;
@@ -818,6 +847,7 @@ int cossim(char date_directory[],int &image_x,int &image_y,int paramerter[],int 
 	for(i=1;i<=8;i++){for(j=1;j<=8;j++){fprintf(fp_date,"%lf, ",Rvector[i][j]);}fprintf(fp_date,"\n");}	//使用したRvector
 	fprintf(fp_date,"Rvector *	: %f,%f,%f,%f,%f,%f,%f,%f\n",Rvectormagni[1],Rvectormagni[2],Rvectormagni[3],Rvectormagni[4],Rvectormagni[5],Rvectormagni[6],Rvectormagni[7],Rvectormagni[8]);	//使用したRvectorの倍率
 	fprintf(fp_date,"使用データ : %s\n",inputdate_directory);		//使用した畳み込み済みデータ
+	fprintf(fp_date, "threshold_b     : %f\n", threshold_b);			//判別分析法の閾値
 	fprintf(fp_date,"保存先     : %s\n",date_directory3);			//保存先
 	fclose(fp_date);
 

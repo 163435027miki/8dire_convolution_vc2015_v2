@@ -73,6 +73,7 @@ std::tuple<int, int, std::vector<std::vector<double>>> read_txt(const char *file
 
   for (i = 0; i < rows; i++) {
 	  for (j = 0; j < cols ; j++) {
+		 // printf("%f,", data[i*(cols)+j]);
 		  // Output[j][i] = data[i*(cols+1) + j];
 		  Output[j][i] = data[i*(cols ) + j];
 		//  printf("%e,", Output[j][i]);

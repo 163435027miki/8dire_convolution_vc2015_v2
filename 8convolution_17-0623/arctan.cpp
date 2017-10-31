@@ -287,7 +287,7 @@ int arctan(char date_directory[], int &image_x, int &image_y,int paramerter[],in
 		}
 	}
 	
-
+	//判別分析法
 	double threshold_b=otsu(date_directory4,image_x,image_y, threshold_edge_st_f);
 			
 ////////////////////////logファイルの作成//////////////////////////////////////////////////////////////////////////
