@@ -33,6 +33,8 @@ int cossim_result_row(char date_directory[], int &image_x, int &image_y,int para
 int Bazen_kernel(char date_directory[], int &image_x, int &image_y,int paramerter[],int paramerter_count,int sd,char date[]);
 int Bazen(char image_nameP2[],int &image_x,int &image_y,int paramerter[],int paramerter_count,int sd,char date[],char date_directory[]);
 
+int convolution_low_gradation(int argc, char** argv, char image_nameP2[], int &image_x, int &image_y, int paramerter[], int paramerter_count, int sd, char date[], char date_directory[],double low_gradation,double max_gradation,int gradation_number);
+
 
 
 
@@ -44,8 +46,8 @@ int main(int argc, char** argv){
 	int paramerter[4];					//paramerter[0]=1でsobelフィルタ,paramerter[0]=2でgaus×sobelフィルタ
 
 	//標準偏差の調整箇所
-	int sd_max = 50;
-	int paramerter_count_max = 3;
+	int sd_max = 0;
+	int paramerter_count_max = 1;
 	//int cossim_atan_switch = 0;			//cossim_atan_switch=0でcossim,cossim_atan_switch=1でarctan
 	paramerter[0] = 0;					//paramerter[0]=1でsobelフィルタ,paramerter[0]=2でgaus×sobelフィルタ
 	//int Edge_derectory_number = 2;		//エッジ強度の計算に用いる成分の数．2（0,90)または8(0~315)
@@ -91,13 +93,17 @@ int main(int argc, char** argv){
 					}
 					else {
 						//sprintf(image_nameP, "..\\property_usa\\simulation17-0821\\kernel\\15-%dp-%dT\\property_%dk_conv_", pixel[z2], Togire[z], paramerter[paramerter_count]);
-						sprintf(image_nameP,"..\\property_usa\\simulation17-1031\\property_kernel\\property_%dk_conv_", paramerter[paramerter_count]);
+						sprintf(image_nameP,"..\\property_usa\\simulation17-1101-t\\property_%dk_conv_", paramerter[paramerter_count]);
 						sprintf(image_nameP2, "%ssd%d.txt", image_nameP, sd);
 						//sprintf(image_nameP, "..\\property_usa\\simulation17-0824-2\\property_B135");
 						//sprintf(image_nameP2, "%s.txt", image_nameP);
 					}
 
-					convolution(argc, argv, image_nameP2, image_x, image_y, paramerter, paramerter_count, sd, date, date_directory);
+					//convolution(argc, argv, image_nameP2, image_x, image_y, paramerter, paramerter_count, sd, date, date_directory);
+					double low_gradation = -55.334195;
+					double max_gradation = 37.601088;
+					int gradation_number = 255;
+					convolution_low_gradation(argc,  argv, image_nameP2, image_x, image_y, paramerter, paramerter_count,sd, date,date_directory,low_gradation,max_gradation,gradation_number);
 
 					//マルチスレッド処理
 				/*	std::thread t1(cossim, std::ref(date_directory), std::ref(image_x), std::ref(image_y), std::ref(paramerter), std::ref(paramerter_count), std::ref(sd), std::ref(date));

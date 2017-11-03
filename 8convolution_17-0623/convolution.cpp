@@ -18,6 +18,8 @@
 
 #include <opencv2/opencv.hpp>	//画像読み込み
 
+#include<thread>	//複数スレッド
+
 #include <tuple>
 std::tuple<int, int, std::vector<std::vector<double>>> read_txt(const char *filename);
 
@@ -66,6 +68,16 @@ char Filename5[64];
 char Filename6[64];
 char Filename7[64];
 char Filename8[64];
+
+//出力ファイル名・出力先の設定_グラデーション用
+char Filename1G[64];
+char Filename2G[64];
+char Filename3G[64];
+char Filename4G[64];
+char Filename5G[64];
+char Filename6G[64];
+char Filename7G[64];
+char Filename8G[64];
 
 //Rvector関連
 char Rvector_directory[128];
@@ -335,6 +347,16 @@ void set_outputfile(char date[],char date_directory[],int paramerter[],int param
 	char *Filename7_s = "V(270).csv";
 	char *Filename8_s = "V(315).csv";
 
+	// 出力結果のファイル名の指定_量子化用のデータ
+	char *Filename1G_s = "V(0)G.csv";
+	char *Filename2G_s = "V(45)G.csv";
+	char *Filename3G_s = "V(90)G.csv";
+	char *Filename4G_s = "V(135)G.csv";
+	char *Filename5G_s = "V(180)G.csv";
+	char *Filename6G_s = "V(225)G.csv";
+	char *Filename7G_s = "V(270)G.csv";
+	char *Filename8G_s = "V(315)G.csv";
+
 
 	//結果を保存するフォルダの作成
 	//フォルダ名は実行日時になる
@@ -369,6 +391,16 @@ void set_outputfile(char date[],char date_directory[],int paramerter[],int param
 	sprintf(Filename6, "%s%s", date_directory2, Filename6_s);
 	sprintf(Filename7, "%s%s", date_directory2, Filename7_s);
 	sprintf(Filename8, "%s%s", date_directory2, Filename8_s);
+
+	//Outputファイルのディレクトリ設定_グラデーション用
+	sprintf(Filename1G, "%s%s", date_directory2, Filename1G_s);
+	sprintf(Filename2G, "%s%s", date_directory2, Filename2G_s);
+	sprintf(Filename3G, "%s%s", date_directory2, Filename3G_s);
+	sprintf(Filename4G, "%s%s", date_directory2, Filename4G_s);
+	sprintf(Filename5G, "%s%s", date_directory2, Filename5G_s);
+	sprintf(Filename6G, "%s%s", date_directory2, Filename6G_s);
+	sprintf(Filename7G, "%s%s", date_directory2, Filename7G_s);
+	sprintf(Filename8G, "%s%s", date_directory2, Filename8G_s);
 
 	printf("使用したカーネルは\n");
 	printf("V0   = %s\n", inputfilter_directory1);
@@ -657,4 +689,581 @@ void read_filter_gaus(int fs,double *spfil1_g[]){
 		}
 	}
 	fclose(fp); 
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////量子化_Vの諧調を落とす///////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
+
+int V315_divide_gradation(int &image_x, int &image_y, double low_gradation, double max_gradation, int gradation_number, double gradient) {
+
+	//Nrutilを用いたメモリの確保
+	double **V315 = matrix(0, image_x - 1, 0, image_y - 1);
+	//確保したメモリを初期化する
+	for (int i8 = 0; i8 < image_y; i8++) {
+		for (int j8 = 0; j8 < image_x; j8++) {
+			V315[j8][i8] = 0;
+		}
+	}
+
+	//Inputファイルを開く
+	ifstream V_315(Filename8);
+	//Outputファイルを開く
+	FILE *fp_V315G;
+	if ((fp_V315G = fopen(Filename8G, "w")) == NULL) { printf("入力エラー V0G.csvが開けません\nFile_name :%s ", Filename8G); exit(1); }
+
+	////////////////////////エラー出力/////////////////////////////////////////////////////////////////////////////////////////////
+	if (!V_315) { printf("入力エラー V(0).csvがありません_cos-sim\nInput_Filename=%s", Filename8G); return 1; }
+
+	///////////////////////応答電圧のcsvの読み込み/////////////////////////////////////////////////////////////////////////////////
+	int i8 = 1;
+	string str_315;
+	int count_large8 = 0;
+	while (getline(V_315, str_315)) {					//このループ内ですべてを行う
+		int	count_small8 = 0;			//初期化
+
+										///////////////いろいろ定義．ここでやらないといけない///////////////////////////////////////////////////////////////////////////
+		string token_V_0;
+		istringstream stream_V_0(str_315);
+
+
+		//////////////////////////配列に代入//////////////////////////////////////////////////////////////////////////////////////////////
+
+		while (getline(stream_V_0, token_V_0, ',')) {	//一行読み取る．V315のみ，繰り返しの範囲指定に用いる
+			double tmp_V_0 = stof(token_V_0);			//文字を数字に変換
+			V315[count_small8][count_large8] = tmp_V_0;				//配列に代入
+																	//V315[count_small][count_large] = Rvectormagni[1] * V315[count_small][count_large]
+
+			++count_small8;
+		}
+		++count_large8;
+	}
+
+	//量子化
+	for (int i8 = 0; i8 < image_y; ++i8) {
+		for (int j8 = 0; j8 < image_x; ++j8) {
+			for (int k8 = 0; k8 < gradation_number; ++k8) {
+				if (V315[j8][i8] > low_gradation + gradient*k8 && V315[j8][i8]<low_gradation + gradient*(k8 + 1)) {
+
+					fprintf(fp_V315G, "%d,", k8);
+					if (j8 == image_x - 1)fprintf(fp_V315G, "\n");
+
+				}
+			}
+		}
+	}
+
+	fclose(fp_V315G);
+	//領域の解放
+	free_matrix(V315, 0, image_x - 1, 0, image_y - 1);
+}
+
+int V270_divide_gradation(int &image_x, int &image_y, double low_gradation, double max_gradation, int gradation_number, double gradient) {
+
+	//Nrutilを用いたメモリの確保
+	double **V270 = matrix(0, image_x - 1, 0, image_y - 1);
+	//確保したメモリを初期化する
+	for (int i7 = 0; i7 < image_y; i7++) {
+		for (int j7 = 0; j7 < image_x; j7++) {
+			V270[j7][i7] = 0;
+		}
+	}
+
+	//Inputファイルを開く
+	ifstream V_270(Filename7);
+	//Outputファイルを開く
+	FILE *fp_V270G;
+	if ((fp_V270G = fopen(Filename7G, "w")) == NULL) { printf("入力エラー V0G.csvが開けません\nFile_name :%s ", Filename7G); exit(1); }
+
+	////////////////////////エラー出力/////////////////////////////////////////////////////////////////////////////////////////////
+	if (!V_270) { printf("入力エラー V(0).csvがありません_cos-sim\nInput_Filename=%s", Filename7G); return 1; }
+
+	///////////////////////応答電圧のcsvの読み込み/////////////////////////////////////////////////////////////////////////////////
+	int i7 = 1;
+	string str_270;
+	int count_large7 = 0;
+	while (getline(V_270, str_270)) {					//このループ内ですべてを行う
+		int	count_small7 = 0;			//初期化
+
+										///////////////いろいろ定義．ここでやらないといけない///////////////////////////////////////////////////////////////////////////
+		string token_V_0;
+		istringstream stream_V_0(str_270);
+
+
+		//////////////////////////配列に代入//////////////////////////////////////////////////////////////////////////////////////////////
+
+		while (getline(stream_V_0, token_V_0, ',')) {	//一行読み取る．V270のみ，繰り返しの範囲指定に用いる
+			double tmp_V_0 = stof(token_V_0);			//文字を数字に変換
+			V270[count_small7][count_large7] = tmp_V_0;				//配列に代入
+																	//V270[count_small][count_large] = Rvectormagni[1] * V270[count_small][count_large]
+
+			++count_small7;
+		}
+		++count_large7;
+	}
+
+	//量子化
+	for (int i7 = 0; i7 < image_y; ++i7) {
+		for (int j7 = 0; j7 < image_x; ++j7) {
+			for (int k7 = 0; k7 < gradation_number; ++k7) {
+				if (V270[j7][i7] > low_gradation + gradient*k7 && V270[j7][i7]<low_gradation + gradient*(k7 + 1)) {
+
+					fprintf(fp_V270G, "%d,", k7);
+					if (j7 == image_x - 1)fprintf(fp_V270G, "\n");
+
+				}
+			}
+		}
+	}
+
+	fclose(fp_V270G);
+	//領域の解放
+	free_matrix(V270, 0, image_x - 1, 0, image_y - 1);
+}
+
+int V225_divide_gradation(int &image_x, int &image_y, double low_gradation, double max_gradation, int gradation_number, double gradient) {
+
+	//Nrutilを用いたメモリの確保
+	double **V225 = matrix(0, image_x - 1, 0, image_y - 1);
+	//確保したメモリを初期化する
+	for (int i6 = 0; i6 < image_y; i6++) {
+		for (int j6 = 0; j6 < image_x; j6++) {
+			V225[j6][i6] = 0;
+		}
+	}
+
+	//Inputファイルを開く
+	ifstream V_225(Filename6);
+	//Outputファイルを開く
+	FILE *fp_V225G;
+	if ((fp_V225G = fopen(Filename6G, "w")) == NULL) { printf("入力エラー V0G.csvが開けません\nFile_name :%s ", Filename6G); exit(1); }
+
+	////////////////////////エラー出力/////////////////////////////////////////////////////////////////////////////////////////////
+	if (!V_225) { printf("入力エラー V(0).csvがありません_cos-sim\nInput_Filename=%s", Filename6G); return 1; }
+
+	///////////////////////応答電圧のcsvの読み込み/////////////////////////////////////////////////////////////////////////////////
+	int i6 = 1;
+	string str_225;
+	int count_large6 = 0;
+	while (getline(V_225, str_225)) {					//このループ内ですべてを行う
+		int	count_small6 = 0;			//初期化
+
+										///////////////いろいろ定義．ここでやらないといけない///////////////////////////////////////////////////////////////////////////
+		string token_V_0;
+		istringstream stream_V_0(str_225);
+
+
+		//////////////////////////配列に代入//////////////////////////////////////////////////////////////////////////////////////////////
+
+		while (getline(stream_V_0, token_V_0, ',')) {	//一行読み取る．V225のみ，繰り返しの範囲指定に用いる
+			double tmp_V_0 = stof(token_V_0);			//文字を数字に変換
+			V225[count_small6][count_large6] = tmp_V_0;				//配列に代入
+																	//V225[count_small][count_large] = Rvectormagni[1] * V225[count_small][count_large]
+
+			++count_small6;
+		}
+		++count_large6;
+	}
+
+	//量子化
+	for (int i6 = 0; i6 < image_y; ++i6) {
+		for (int j6 = 0; j6 < image_x; ++j6) {
+			for (int k6 = 0; k6 < gradation_number; ++k6) {
+				if (V225[j6][i6] > low_gradation + gradient*k6 && V225[j6][i6]<low_gradation + gradient*(k6 + 1)) {
+
+					fprintf(fp_V225G, "%d,", k6);
+					if (j6 == image_x - 1)fprintf(fp_V225G, "\n");
+
+				}
+			}
+		}
+	}
+
+	fclose(fp_V225G);
+	//領域の解放
+	free_matrix(V225, 0, image_x - 1, 0, image_y - 1);
+}
+
+int V180_divide_gradation(int &image_x, int &image_y, double low_gradation, double max_gradation, int gradation_number, double gradient) {
+
+	//Nrutilを用いたメモリの確保
+	double **V180 = matrix(0, image_x - 1, 0, image_y - 1);
+	//確保したメモリを初期化する
+	for (int i5 = 0; i5 < image_y; i5++) {
+		for (int j5 = 0; j5 < image_x; j5++) {
+			V180[j5][i5] = 0;
+		}
+	}
+
+	//Inputファイルを開く
+	ifstream V_180(Filename5);
+	//Outputファイルを開く
+	FILE *fp_V180G;
+	if ((fp_V180G = fopen(Filename5G, "w")) == NULL) { printf("入力エラー V0G.csvが開けません\nFile_name :%s ", Filename5G); exit(1); }
+
+	////////////////////////エラー出力/////////////////////////////////////////////////////////////////////////////////////////////
+	if (!V_180) { printf("入力エラー V(0).csvがありません_cos-sim\nInput_Filename=%s", Filename5G); return 1; }
+
+	///////////////////////応答電圧のcsvの読み込み/////////////////////////////////////////////////////////////////////////////////
+	int i5 = 1;
+	string str_180;
+	int count_large5 = 0;
+	while (getline(V_180, str_180)) {					//このループ内ですべてを行う
+		int	count_small5 = 0;			//初期化
+
+										///////////////いろいろ定義．ここでやらないといけない///////////////////////////////////////////////////////////////////////////
+		string token_V_0;
+		istringstream stream_V_0(str_180);
+
+
+		//////////////////////////配列に代入//////////////////////////////////////////////////////////////////////////////////////////////
+
+		while (getline(stream_V_0, token_V_0, ',')) {	//一行読み取る．V180のみ，繰り返しの範囲指定に用いる
+			double tmp_V_0 = stof(token_V_0);			//文字を数字に変換
+			V180[count_small5][count_large5] = tmp_V_0;				//配列に代入
+																	//V180[count_small][count_large] = Rvectormagni[1] * V180[count_small][count_large]
+
+			++count_small5;
+		}
+		++count_large5;
+	}
+
+	//量子化
+	for (int i5 = 0; i5 < image_y; ++i5) {
+		for (int j5 = 0; j5 < image_x; ++j5) {
+			for (int k5 = 0; k5 < gradation_number; ++k5) {
+				if (V180[j5][i5] > low_gradation + gradient*k5 && V180[j5][i5]<low_gradation + gradient*(k5 + 1)) {
+
+					fprintf(fp_V180G, "%d,", k5);
+					if (j5 == image_x - 1)fprintf(fp_V180G, "\n");
+
+				}
+			}
+		}
+	}
+
+	fclose(fp_V180G);
+	//領域の解放
+	free_matrix(V180, 0, image_x - 1, 0, image_y - 1);
+}
+
+int V135_divide_gradation(int &image_x, int &image_y, double low_gradation, double max_gradation, int gradation_number, double gradient) {
+
+	//Nrutilを用いたメモリの確保
+	double **V135 = matrix(0, image_x - 1, 0, image_y - 1);
+	//確保したメモリを初期化する
+	for (int i4 = 0; i4 < image_y; i4++) {
+		for (int j4 = 0; j4 < image_x; j4++) {
+			V135[j4][i4] = 0;
+		}
+	}
+
+	//Inputファイルを開く
+	ifstream V_135(Filename4);
+	//Outputファイルを開く
+	FILE *fp_V135G;
+	if ((fp_V135G = fopen(Filename4G, "w")) == NULL) { printf("入力エラー V0G.csvが開けません\nFile_name :%s ", Filename4G); exit(1); }
+
+	////////////////////////エラー出力/////////////////////////////////////////////////////////////////////////////////////////////
+	if (!V_135) { printf("入力エラー V(0).csvがありません_cos-sim\nInput_Filename=%s", Filename4G); return 1; }
+
+	///////////////////////応答電圧のcsvの読み込み/////////////////////////////////////////////////////////////////////////////////
+	int i4 = 1;
+	string str_135;
+	int count_large4 = 0;
+	while (getline(V_135, str_135)) {					//このループ内ですべてを行う
+		int	count_small4 = 0;			//初期化
+
+										///////////////いろいろ定義．ここでやらないといけない///////////////////////////////////////////////////////////////////////////
+		string token_V_0;
+		istringstream stream_V_0(str_135);
+
+
+		//////////////////////////配列に代入//////////////////////////////////////////////////////////////////////////////////////////////
+
+		while (getline(stream_V_0, token_V_0, ',')) {	//一行読み取る．V135のみ，繰り返しの範囲指定に用いる
+			double tmp_V_0 = stof(token_V_0);			//文字を数字に変換
+			V135[count_small4][count_large4] = tmp_V_0;				//配列に代入
+																	//V135[count_small][count_large] = Rvectormagni[1] * V135[count_small][count_large]
+
+			++count_small4;
+		}
+		++count_large4;
+	}
+
+	//量子化
+	for (int i4 = 0; i4 < image_y; ++i4) {
+		for (int j4 = 0; j4 < image_x; ++j4) {
+			for (int k4 = 0; k4 < gradation_number; ++k4) {
+				if (V135[j4][i4] > low_gradation + gradient*k4 && V135[j4][i4]<low_gradation + gradient*(k4 + 1)) {
+
+					fprintf(fp_V135G, "%d,", k4);
+					if (j4 == image_x - 1)fprintf(fp_V135G, "\n");
+
+				}
+			}
+		}
+	}
+
+	fclose(fp_V135G);
+	//領域の解放
+	free_matrix(V135, 0, image_x - 1, 0, image_y - 1);
+}
+
+int V90_divide_gradation(int &image_x, int &image_y, double low_gradation, double max_gradation, int gradation_number, double gradient) {
+
+	//Nrutilを用いたメモリの確保
+	double **V90 = matrix(0, image_x - 1, 0, image_y - 1);
+	//確保したメモリを初期化する
+	for (int i3 = 0; i3 < image_y; i3++) {
+		for (int j3 = 0; j3 < image_x; j3++) {
+			V90[j3][i3] = 0;
+		}
+	}
+
+	//Inputファイルを開く
+	ifstream V_90(Filename3);
+	//Outputファイルを開く
+	FILE *fp_V90G;
+	if ((fp_V90G = fopen(Filename3G, "w")) == NULL) { printf("入力エラー V0G.csvが開けません\nFile_name :%s ", Filename3G); exit(1); }
+
+	////////////////////////エラー出力/////////////////////////////////////////////////////////////////////////////////////////////
+	if (!V_90) { printf("入力エラー V(0).csvがありません_cos-sim\nInput_Filename=%s", Filename3G); return 1; }
+
+	///////////////////////応答電圧のcsvの読み込み/////////////////////////////////////////////////////////////////////////////////
+	int i3 = 1;
+	string str_90;
+	int count_large3 = 0;
+	while (getline(V_90, str_90)) {					//このループ内ですべてを行う
+		int	count_small3 = 0;			//初期化
+
+										///////////////いろいろ定義．ここでやらないといけない///////////////////////////////////////////////////////////////////////////
+		string token_V_0;
+		istringstream stream_V_0(str_90);
+
+
+		//////////////////////////配列に代入//////////////////////////////////////////////////////////////////////////////////////////////
+
+		while (getline(stream_V_0, token_V_0, ',')) {	//一行読み取る．V90のみ，繰り返しの範囲指定に用いる
+			double tmp_V_0 = stof(token_V_0);			//文字を数字に変換
+			V90[count_small3][count_large3] = tmp_V_0;				//配列に代入
+																	//V90[count_small][count_large] = Rvectormagni[1] * V90[count_small][count_large]
+
+			++count_small3;
+		}
+		++count_large3;
+	}
+
+	//量子化
+	for (int i3 = 0; i3 < image_y; ++i3) {
+		for (int j3 = 0; j3 < image_x; ++j3) {
+			for (int k3 = 0; k3 < gradation_number; ++k3) {
+				if (V90[j3][i3] > low_gradation + gradient*k3 && V90[j3][i3]<low_gradation + gradient*(k3 + 1)) {
+
+					fprintf(fp_V90G, "%d,", k3);
+					if (j3 == image_x - 1)fprintf(fp_V90G, "\n");
+
+				}
+			}
+		}
+	}
+
+	fclose(fp_V90G);
+	//領域の解放
+	free_matrix(V90, 0, image_x - 1, 0, image_y - 1);
+}
+
+int V45_divide_gradation(int &image_x, int &image_y, double low_gradation, double max_gradation, int gradation_number, double gradient) {
+
+	//Nrutilを用いたメモリの確保
+	double **V45 = matrix(0, image_x - 1, 0, image_y - 1);
+	//確保したメモリを初期化する
+	for (int i2 = 0; i2 < image_y; i2++) {
+		for (int j2 = 0; j2 < image_x; j2++) {
+			V45[j2][i2] = 0;
+		}
+	}
+
+	//Inputファイルを開く
+	ifstream V_45(Filename2);
+	//Outputファイルを開く
+	FILE *fp_V45G;
+	if ((fp_V45G = fopen(Filename2G, "w")) == NULL) { printf("入力エラー V0G.csvが開けません\nFile_name :%s ", Filename2G); exit(1); }
+
+	////////////////////////エラー出力/////////////////////////////////////////////////////////////////////////////////////////////
+	if (!V_45) { printf("入力エラー V(0).csvがありません_cos-sim\nInput_Filename=%s", Filename2G); return 1; }
+
+	///////////////////////応答電圧のcsvの読み込み/////////////////////////////////////////////////////////////////////////////////
+	int i2 = 1;
+	string str_45;
+	int count_large2 = 0;
+	while (getline(V_45, str_45)) {					//このループ内ですべてを行う
+		int	count_small2 = 0;			//初期化
+
+										///////////////いろいろ定義．ここでやらないといけない///////////////////////////////////////////////////////////////////////////
+		string token_V_0;
+		istringstream stream_V_0(str_45);
+
+
+		//////////////////////////配列に代入//////////////////////////////////////////////////////////////////////////////////////////////
+
+		while (getline(stream_V_0, token_V_0, ',')) {	//一行読み取る．V45のみ，繰り返しの範囲指定に用いる
+			double tmp_V_0 = stof(token_V_0);			//文字を数字に変換
+			V45[count_small2][count_large2] = tmp_V_0;				//配列に代入
+																	//V45[count_small][count_large] = Rvectormagni[1] * V45[count_small][count_large]
+
+			++count_small2;
+		}
+		++count_large2;
+	}
+
+	//量子化
+	for (int i2 = 0; i2 < image_y; ++i2) {
+		for (int j2 = 0; j2 < image_x; ++j2) {
+			for (int k2 = 0; k2 < gradation_number; ++k2) {
+				if (V45[j2][i2] > low_gradation + gradient*k2 && V45[j2][i2]<low_gradation + gradient*(k2 + 1)) {
+
+					fprintf(fp_V45G, "%d,", k2);
+					if (j2 == image_x - 1)fprintf(fp_V45G, "\n");
+
+				}
+			}
+		}
+	}
+
+	fclose(fp_V45G);
+	//領域の解放
+	free_matrix(V45, 0, image_x - 1, 0, image_y - 1);
+}
+
+int V0_divide_gradation(int &image_x, int &image_y, double low_gradation, double max_gradation, int gradation_number,double gradient) {
+
+	//Nrutilを用いたメモリの確保
+	double **V0 = matrix(0, image_x - 1, 0, image_y - 1);
+	//確保したメモリを初期化する
+	for (int i1 = 0; i1 < image_y; i1++) {
+		for (int j1 = 0; j1 < image_x; j1++) {
+			V0[j1][i1] = 0;
+		}
+	}
+
+	//Inputファイルを開く
+	ifstream V_0(Filename1);
+	//Outputファイルを開く
+	FILE *fp_V0G;
+	if ((fp_V0G = fopen(Filename1G, "w")) == NULL) { printf("入力エラー V0G.csvが開けません\nFile_name :%s ", Filename1G); exit(1); }
+
+////////////////////////エラー出力/////////////////////////////////////////////////////////////////////////////////////////////
+	if (!V_0) { printf("入力エラー V(0).csvがありません_cos-sim\nInput_Filename=%s", Filename1G); return 1; }
+
+///////////////////////応答電圧のcsvの読み込み/////////////////////////////////////////////////////////////////////////////////
+	int i1 = 1;
+	string str_0;
+	int count_large1 = 0;
+	while (getline(V_0, str_0)) {					//このループ内ですべてを行う
+		int	count_small1 = 0;			//初期化
+
+///////////////いろいろ定義．ここでやらないといけない///////////////////////////////////////////////////////////////////////////
+		string token_V_0;
+		istringstream stream_V_0(str_0);
+
+
+//////////////////////////配列に代入//////////////////////////////////////////////////////////////////////////////////////////////
+
+		while (getline(stream_V_0, token_V_0, ',')) {	//一行読み取る．V0のみ，繰り返しの範囲指定に用いる
+			double tmp_V_0 = stof(token_V_0);			//文字を数字に変換
+			V0[count_small1][count_large1] = tmp_V_0;				//配列に代入
+			//V0[count_small][count_large] = Rvectormagni[1] * V0[count_small][count_large]
+
+			++count_small1;
+		}
+		++count_large1;
+	}
+
+	//量子化
+	for (int i1 = 0; i1 < image_y; ++i1) {
+		for (int j1 = 0; j1 < image_x; ++j1) {
+			for (int k1 = 0; k1 < gradation_number; ++k1) {
+				if (V0[j1][i1] > low_gradation + gradient*k1 && V0[j1][i1]<low_gradation + gradient*(k1 + 1)) {
+
+					fprintf(fp_V0G, "%d,", k1);
+					if (j1 == image_x - 1)fprintf(fp_V0G, "\n");
+
+				}
+			}
+		}
+	}
+
+	fclose(fp_V0G);
+	//領域の解放
+	free_matrix(V0, 0, image_x-1, 0, image_y-1);
+}
+
+//量子化処理のスレッド制御
+int divide_dradation(int &image_x, int &image_y, double low_gradation, double max_gradation, int gradation_number) {
+
+
+	//量子化する
+	double gradient=0;
+
+	gradient = (max_gradation - low_gradation) / gradation_number;
+
+	/*
+	//単スレッド処理
+	V0_divide_gradation(image_x,image_y,low_gradation,max_gradation,gradation_number,gradient);
+	V45_divide_gradation(image_x, image_y, low_gradation, max_gradation, gradation_number, gradient);
+	V90_divide_gradation(image_x, image_y, low_gradation, max_gradation, gradation_number, gradient);
+	V135_divide_gradation(image_x, image_y, low_gradation, max_gradation, gradation_number, gradient);
+	V180_divide_gradation(image_x, image_y, low_gradation, max_gradation, gradation_number, gradient);
+	V225_divide_gradation(image_x, image_y, low_gradation, max_gradation, gradation_number, gradient);
+	V270_divide_gradation(image_x, image_y, low_gradation, max_gradation, gradation_number, gradient);
+	V315_divide_gradation(image_x, image_y, low_gradation, max_gradation, gradation_number, gradient);
+	//単スレッド処理終わり
+	*/
+	
+	//マルチスレッド処理
+	std::thread t1(V0_divide_gradation, std::ref(image_x), std::ref(image_y), std::ref(low_gradation), std::ref(max_gradation), std::ref(gradation_number), std::ref(gradient));
+	std::thread t2(V45_divide_gradation, std::ref(image_x), std::ref(image_y), std::ref(low_gradation), std::ref(max_gradation), std::ref(gradation_number), std::ref(gradient));
+	std::thread t3(V90_divide_gradation, std::ref(image_x), std::ref(image_y), std::ref(low_gradation), std::ref(max_gradation), std::ref(gradation_number), std::ref(gradient));
+	std::thread t4(V135_divide_gradation, std::ref(image_x), std::ref(image_y), std::ref(low_gradation), std::ref(max_gradation), std::ref(gradation_number), std::ref(gradient));
+	std::thread t5(V180_divide_gradation, std::ref(image_x), std::ref(image_y), std::ref(low_gradation), std::ref(max_gradation), std::ref(gradation_number), std::ref(gradient));
+	std::thread t6(V225_divide_gradation, std::ref(image_x), std::ref(image_y), std::ref(low_gradation), std::ref(max_gradation), std::ref(gradation_number), std::ref(gradient));
+	std::thread t7(V270_divide_gradation, std::ref(image_x), std::ref(image_y), std::ref(low_gradation), std::ref(max_gradation), std::ref(gradation_number), std::ref(gradient));
+	std::thread t8(V315_divide_gradation, std::ref(image_x), std::ref(image_y), std::ref(low_gradation), std::ref(max_gradation), std::ref(gradation_number), std::ref(gradient));
+	t1.join();
+	t2.join();
+	t3.join();
+	t4.join();
+	t5.join();
+	t6.join();
+	t7.join();
+	t8.join();
+	//マルチスレッド処理_終わり
+	
+
+	return 0;
+}
+
+//量子化を行う場合の畳み込み
+int convolution_low_gradation(int argc, char** argv, char image_nameP2[], int &image_x, int &image_y, int paramerter[], int paramerter_count, int sd, char date[], char date_directory[], double low_gradation, double max_gradation, int gradation_number) {
+
+	printf("****************************************\n");
+	printf("start：convolution_gradation\n");
+	printf("****************************************\n");
+
+	printf("max_gradation=%f\n", max_gradation);
+	printf("low_gradation=%f\n", low_gradation);
+	printf("gradation_number=%d\n", gradation_number);
+
+
+	convolution(argc, argv, image_nameP2, image_x, image_y, paramerter, paramerter_count, sd, date, date_directory);
+
+	//量子化
+	divide_dradation(image_x, image_y,low_gradation,max_gradation,gradation_number);
+
+	return 0;
 }
